@@ -1,0 +1,25 @@
+FROM spark_base
+
+# Set default environment variables. These can also be set at the command line when invoking /bin/spark-submit
+ENV MASTER_CONTAINER_NAME=spark-master
+ENV SPARK_EXECUTOR_MEMORY=6G
+ENV SPARK_EXECUTOR_CORES=3
+
+# Install libraries
+COPY ./resources/requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy examples python files into container
+COPY ./examples/ /home/examples/
+COPY ./resources/log4j.properties ./resources/spark-defaults.conf $SPARK_HOME/conf/
+
+EXPOSE 4040 8888
+
+RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list
+RUN curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | apt-key add 
+RUN apt-get update
+RUN apt-get install sbt
+
+WORKDIR /home/
+
+
